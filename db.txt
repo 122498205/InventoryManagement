@@ -1,0 +1,158 @@
+1. 产品表（Product）
+- 产品编号（product_id）: 主键，自增
+- 产品名称（product_name）: 字符串，不为空
+- 产品描述（product_description）: 字符串
+- 单位（unit）: 字符串
+- 单价（unit_price）: 浮点数
+
+2. 供应商表（Supplier）
+- 供应商编号（supplier_id）: 主键，自增
+- 供应商名称（supplier_name）: 字符串，不为空
+- 供应商地址（supplier_address）: 字符串
+- 联系人（contact_person）: 字符串
+- 联系电话（contact_number）: 字符串
+
+3. 客户表（Customer）
+- 客户编号（customer_id）: 主键，自增
+- 客户名称（customer_name）: 字符串，不为空
+- 客户地址（customer_address）: 字符串
+- 联系人（contact_person）: 字符串
+- 联系电话（contact_number）: 字符串
+
+4. 采购订单表（PurchaseOrder）
+- 订单编号（order_id）: 主键，自增
+- 供应商编号（supplier_id）: 外键，关联到供应商表的供应商编号
+- 订单日期（order_date）: 日期类型
+- 总金额（total_amount）: 浮点数
+
+5. 采购订单明细表（PurchaseOrderDetail）
+- 订单明细编号（detail_id）: 主键，自增
+- 订单编号（order_id）: 外键，关联到采购订单表的订单编号
+- 产品编号（product_id）: 外键，关联到产品表的产品编号
+- 数量（quantity）: 整数
+- 金额（amount）: 浮点数
+
+6. 销售订单表（SalesOrder）
+- 订单编号（order_id）: 主键，自增
+- 客户编号（customer_id）: 外键，关联到客户表的客户编号
+- 订单日期（order_date）: 日期类型
+- 总金额（total_amount）: 浮点数
+
+7. 销售订单明细表（SalesOrderDetail）
+- 订单明细编号（detail_id）: 主键，自增
+- 订单编号（order_id）: 外键，关联到销售订单表的订单编号
+- 产品编号（product_id）: 外键，关联到产品表的产品编号
+- 数量（quantity）: 整数
+- 金额（amount）: 浮点数
+
+8. 库存表（Inventory）
+- 产品编号（product_id）: 外键，关联到产品表的产品编号
+- 数量（quantity）: 整数
+
+好的，根据您的要求，下面是一个可能的MySQL数据库设计，包括入库明细表:
+
+```sql
+CREATE DATABASE inventory;
+
+USE inventory;
+
+-- 创建入库明细表
+CREATE TABLE incoming_details (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  quantity INT NOT NULL,
+  unit_price DECIMAL(10, 2) NOT NULL,
+  total_price DECIMAL(10, 2) NOT NULL,
+  entry_date DATE NOT NULL,
+  supplier_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 添加外键约束
+ALTER TABLE incoming_details
+ADD FOREIGN KEY (product_id) REFERENCES products(id),
+ADD FOREIGN KEY (supplier_id) REFERENCES suppliers(id);
+```
+
+入库明细表的字段说明:
+- id: 入库明细的唯一标识 (自增主键)
+- product_id: 入库的商品ID (与产品表中的id关联)
+- quantity: 入库数量
+- unit_price: 商品单价
+- total_price: 商品总价
+- entry_date: 入库日期
+- supplier_id: 供应商ID (与供应商表中的id关联)
+- created_at: 创建时间
+- updated_at: 更新时间
+
+
+
+以下是生成这些表的具体MySQL语句：
+
+```sql
+CREATE TABLE Product (
+product_id INT AUTO_INCREMENT PRIMARY KEY,
+product_name VARCHAR(255) NOT NULL,
+product_description VARCHAR(255),
+unit VARCHAR(255),
+unit_price DECIMAL(10, 2)
+);
+
+CREATE TABLE Supplier (
+supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+supplier_name VARCHAR(255) NOT NULL,
+supplier_address VARCHAR(255),
+contact_person VARCHAR(255),
+contact_number VARCHAR(255)
+);
+
+CREATE TABLE Customer (
+customer_id INT AUTO_INCREMENT PRIMARY KEY,
+customer_name VARCHAR(255) NOT NULL,
+customer_address VARCHAR(255),
+contact_person VARCHAR(255),
+contact_number VARCHAR(255)
+);
+
+CREATE TABLE PurchaseOrder (
+order_id INT AUTO_INCREMENT PRIMARY KEY,
+supplier_id INT,
+order_date DATE,
+total_amount DECIMAL(10, 2),
+FOREIGN KEY (supplier_id) REFERENCES Supplier(supplier_id)
+);
+
+CREATE TABLE PurchaseOrderDetail (
+detail_id INT AUTO_INCREMENT PRIMARY KEY,
+order_id INT,
+product_id INT,
+quantity INT,
+amount DECIMAL(10, 2),
+FOREIGN KEY (order_id) REFERENCES PurchaseOrder(order_id),
+FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
+
+CREATE TABLE SalesOrder (
+order_id INT AUTO_INCREMENT PRIMARY KEY,
+customer_id INT,
+order_date DATE,
+total_amount DECIMAL(10, 2),
+FOREIGN KEY (customer_id) REFERENCES Customer(customer_id)
+);
+
+CREATE TABLE SalesOrderDetail (
+detail_id INT AUTO_INCREMENT PRIMARY KEY,
+order_id INT,
+product_id INT,
+quantity INT,
+amount DECIMAL(10, 2),
+FOREIGN KEY (order_id) REFERENCES SalesOrder(order_id),
+FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
+
+CREATE TABLE Inventory (
+product_id INT PRIMARY KEY,
+quantity INT,
+FOREIGN KEY (product_id) REFERENCES Product(product_id)
+);
